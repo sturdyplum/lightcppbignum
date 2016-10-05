@@ -119,6 +119,47 @@ struct bigInt{
         return c;
     }
 
+    bigInt operator/()
+    {
+        bigInt c;
+        c.pos = (other.pos or this->pos) or (!other.pos and !this->pos);
+        if(other.absGreater(*this)) return c;
+        if(other == *this)
+        {
+            c.number[0] = 1;
+            return c;
+        }
+
+
+
+    }
+
+
+
+    bool operator==(bigInt &other)
+    {
+        if(this->pos != other.pos) return false;
+        for(int  i = 0; i < maxBigIntLength; i++)
+        {
+            if(this->number[i] != other.number[i]) return false;
+        }
+        return true;
+    }
+
+    bool operator>(bigInt &other)
+    {
+        if(this->pos and !other.pos) return true;
+        if(other.pos and !this->pos) return false;
+        if(this->pos and other.pos) return this->absGreater(other);
+        return other.absGreater(*this);
+    }
+
+    bool operator<(bigInt &other)
+    {
+        if(!(*this == other) and !(*this > other)) return true;
+        return false;
+    }
+
     void print()
     {
         int i = maxBigIntLength-1;
@@ -134,5 +175,12 @@ struct bigInt{
 
 int main()
 {
+    bigInt a(1);
+    for(int i = 1; i <= 100; i++)
+    {
+        bigInt b(i);
+        a = a*b;
+    }
+    a.print();
     return 0;
 }
