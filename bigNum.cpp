@@ -6,13 +6,14 @@ using namespace std;
 
 #define maxBigIntLength 2500//size of numbers
 
+
 struct bigInt{
     int number[maxBigIntLength];//number is stored here backwards
     bool pos;//pos = true if number is positive
 
 	//default constructor
     bigInt() {this->pos = true,  memset(this->number, 0, sizeof this->number);}
-	
+
 	//integer constructor
     bigInt(int i)
     {
@@ -27,7 +28,7 @@ struct bigInt{
             i/=10;
         }
     }
-	
+
 	//string constructor
     bigInt(string s)
     {
@@ -48,7 +49,7 @@ struct bigInt{
         while(this->number[i] == other.number[i] and i >= 0)i--;
         return (this->number[i] > other.number[i]);
     }
-	
+
 	//adds a and b assums that they are either both positive or bot negative
     static bigInt addBig(bigInt &a, bigInt &b)
     {
@@ -61,7 +62,7 @@ struct bigInt{
         return c;
     }
 
-	//subtracts b from a assumes that both are positive and that a is greater than b 
+	//subtracts b from a assumes that both are positive and that a is greater than b
     static bigInt subBig(bigInt &a, bigInt &b)
     {
         bigInt c;
@@ -111,7 +112,7 @@ struct bigInt{
     bigInt operator*(bigInt& other)
     {//warning do not multiply 2 numbers whos n is > maxBigIntLength/2 or you will get a wrong answer
         bigInt c;
-        c.pos = (other.pos or this->pos) or (!other.pos and !this->pos);
+        c.pos = (other.pos and this->pos) or (!other.pos and !this->pos);
         for(int i = 0; i < maxBigIntLength/2; i++)
         {
             int carry = 0, digit, j = i;
@@ -131,18 +132,50 @@ struct bigInt{
         return c;
     }
 
-    bigInt operator/()
-    {
+    void operator>>(int a)
+    {//left shift a (divide by 10^a)
+        int i;
+        for(i = 0; i < maxBigIntLength - a; i++)
+        {
+            this->number[i] = this->number[i+a];
+           // cout << number[i];
+        }
+        for(;i < maxBigIntLength; i++)
+        {
+            this->number[i] = 0;
+        }
+    }
+
+    bigInt operator/(bigInt &other)
+    {//while i have been able to improve this it now runs in (9n)^2 I might be able to improve this further and make it just n^2
         bigInt c;
-        c.pos = (other.pos or this->pos) or (!other.pos and !this->pos);
+        c.pos = (other.pos and this->pos) or (!other.pos and !this->pos);
         if(other.absGreater(*this)) return c;
         if(other == *this)
         {
             c.number[0] = 1;
             return c;
         }
-
-
+        bigInt temp = other, temp2 = *this;
+        bigInt zero(0);
+        bigInt ans(0);
+        int t2 = maxBigIntLength-1, t1 = t2;
+        while(this->number[t2] == 0) t2--;
+        while(other.number[t1] == 0) t1--;
+        string x(t2-t1,'0');
+        x[0] = '1';
+        bigInt mul(x);
+        while(mul > zero)
+        {
+            temp = other*mul;
+            while(temp2.absGreater(temp) or temp2 == temp)
+            {
+                temp2 = temp2 - temp;
+                ans = ans + mul;
+            }
+            mul>>1;
+        }
+        return ans;
 
     }
 
@@ -187,12 +220,6 @@ struct bigInt{
 
 int main()
 {
-    bigInt a(1);
-    for(int i = 1; i <= 100; i++)
-    {
-        bigInt b(i);
-        a = a*b;
-    }
-    a.print();
     return 0;
 }
+
