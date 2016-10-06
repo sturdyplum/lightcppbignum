@@ -197,16 +197,22 @@ struct bigInt{
         {
             bigInt a = genRand(two,hold);
             bigInt x = power(a,d,n);
-            if(x == one or x == hold) return true;
+            if(x == one or x == hold) continue;
+            bool cont = false;
             while(!(d == hold))
             {
                 x = (x*x)%n;
                 d = d * two;
                 if(x == one) return false;
-                if(x == hold) return true;
+                if(x == hold)
+                {
+                    cont = true;
+                    break;
+                }
             }
+            if(!cont) return false;
         }
-        return false;
+        return true;
 
     }
     static bigInt genRand(bigInt &low, bigInt &high)
@@ -296,8 +302,7 @@ int main()
     srand(time(NULL));
     for(int i = 1; i < 1000;i++)
     {
-        bigInt a(i);if(a.probablePrime(20)) cout << i << endl;
+        bigInt a(i);if(a.probablePrime(10)) cout << i << endl;
     }
     return 0;
 }
-
