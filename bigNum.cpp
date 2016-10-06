@@ -1,11 +1,12 @@
 #include <iostream>
 #include <cstring>
 #include <cstdio>
+#include <random>
+#include <time.h>
 
 using namespace std;
 
-#define maxBigIntLength 2500//size of numbers
-
+#define maxBigIntLength 300//size of numbers
 
 struct bigInt{
     int number[maxBigIntLength];//number is stored here backwards
@@ -47,6 +48,7 @@ struct bigInt{
     {
         int i = maxBigIntLength-1;
         while(this->number[i] == other.number[i] and i >= 0)i--;
+        if(i < 0) return false;
         return (this->number[i] > other.number[i]);
     }
 
@@ -162,7 +164,7 @@ struct bigInt{
         int t2 = maxBigIntLength-1, t1 = t2;
         while(this->number[t2] == 0) t2--;
         while(other.number[t1] == 0) t1--;
-        string x(t2-t1,'0');
+        string x(max(t2-t1,1),'0');
         x[0] = '1';
         bigInt mul(x);
         while(mul > zero)
@@ -179,8 +181,72 @@ struct bigInt{
 
     }
 
+    bool probablePrime(int k)
+    {
+        bigInt one(1),two(2),three(3);
+        bigInt n = *this;
+        if(n == one) return false;
+        if(n == two or n == three) return true;
+        if(n.number[0]%2 == 0) return false;
+        bigInt d=n-one, hold = d;
+        while(d.number[0]%2 == 0)
+        {
+            d = d/two;
+        }
+        for(int i = 0; i < k; i++)
+        {
+            bigInt a = genRand(two,hold);
+            bigInt x = power(a,d,n);
+            if(x == one or x == hold) return true;
+            while(!(d == hold))
+            {
+                x = (x*x)%n;
+                d = d * two;
+                if(x == one) return false;
+                if(x == hold) return true;
+            }
+        }
+        return false;
 
+    }
+    static bigInt genRand(bigInt &low, bigInt &high)
+    {
+        bigInt range = high-low;
+        bigInt temp, val;
+        int index = 0;
+        while((temp < range or temp == range) and index < maxBigIntLength)
+        {
+            int x = rand()%10;
+            temp.number[index] = x;
+            if(temp < range or temp == range)
+            {
+                val.number[index] = temp.number[index];
+                index++;
+            }
+        }
+        return val + low;
+    }
 
+    static bigInt power(bigInt &n, bigInt pow, bigInt &mod)
+    {
+        bigInt zero, one(1), two(2);
+        if(pow == zero) return one;
+        if(pow == one) return n;
+        if(pow.number[0] % 2 == 0)
+        {
+            pow = pow/two;
+            bigInt temp = power(n,pow,mod);
+            temp = temp * temp;
+            return temp %mod;
+        }
+        else
+        {
+            bigInt temp = power(n,(pow/two),mod);
+            bigInt temp2 = power(n,(pow/two)+one,mod);
+            bigInt c = (temp * temp2)%mod;
+            return c;
+        }
+    }
     bool operator==(bigInt &other)
     {//if signs are not equal then return false otherwise step through number array making sure all indicies are equal
         if(this->pos != other.pos) return false;
@@ -205,6 +271,13 @@ struct bigInt{
         return false;
     }
 
+    bigInt operator%(bigInt & other)
+    {
+        bigInt divisor = *this/other, temp = divisor*other, ans = *this - temp;
+        return ans;
+
+    }
+
     void print()
     {//prints out the big int without leading zeros
         int i = maxBigIntLength-1;
@@ -220,6 +293,8 @@ struct bigInt{
 
 int main()
 {
+    srand(time(NULL));
+    bigInt l("961748941");
+    if(l.probablePrime(5)) cout << "ASDSAD";
     return 0;
 }
-
