@@ -224,7 +224,7 @@ struct bigInt{
                 index++;
             }
         }
-        return val + low;
+        return  val + low;
     }
 
     static bigInt power(bigInt &n, bigInt pow, bigInt &mod)
@@ -242,8 +242,8 @@ struct bigInt{
         else
         {
             bigInt temp = power(n,(pow/two),mod);
-            bigInt temp2 = power(n,(pow/two)+one,mod);
-            bigInt c = (temp * temp2)%mod;
+            temp = (temp * temp)%mod;
+            bigInt c = (n * temp)%mod;
             return c;
         }
     }
@@ -294,7 +294,10 @@ struct bigInt{
 int main()
 {
     srand(time(NULL));
-    bigInt l("961748941");
-    if(l.probablePrime(5)) cout << "ASDSAD";
+    for(int i = 1; i < 1000;i++)
+    {
+        bigInt a(i);if(a.probablePrime(20)) cout << i << endl;
+    }
     return 0;
 }
+
